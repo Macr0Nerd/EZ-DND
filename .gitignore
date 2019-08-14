@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# JetBrains Crap
+.idea/
+
+# CMake Crap
+cmake-build-debug/
