@@ -11,15 +11,19 @@ namespace dnd {
                 nums = sides;
             }
 
-            ~dice(){}
+            ~dice() = default;
 
             int roll(){
-                unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-                std::default_random_engine generator (seed);
+                if(nums) {
+                    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+                    std::default_random_engine generator(seed);
 
-                std::uniform_int_distribution<int> distribution(1, nums);
+                    std::uniform_int_distribution<int> distribution(1, nums);
 
-                return distribution(generator);
+                    return distribution(generator);
+                } else {
+                    return 0;
+                }
             }
 
         private:
@@ -27,6 +31,9 @@ namespace dnd {
         };
     }
 
+    core::dice d0 = core::dice(0);
+    core::dice d1 = core::dice(1);
+    core::dice d2 = core::dice(2);
     core::dice d4 = core::dice(4);
     core::dice d6 = core::dice(6);
     core::dice d8 = core::dice(8);

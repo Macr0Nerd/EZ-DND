@@ -1,7 +1,8 @@
 #pragma once
 
-#import <string>
-#import <map>
+#include <string>
+#include <map>
+//#include "weapons.hpp"
 
 namespace dnd {
     class character {
@@ -52,6 +53,8 @@ namespace dnd {
                          {"WIS", wisdom},
                          {"CHA", charisma}};
         }
+
+        ~character() = default;
 
         std::map<std::string, int> getAbilities() {
             /**
