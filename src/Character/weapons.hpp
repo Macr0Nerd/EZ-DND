@@ -1,9 +1,12 @@
 #pragma once
 
+#ifndef WEAPONS_HPP
+#define WEAPONS_HPP
+
 #include <string>
 #include <map>
 #include <vector>
-#include "../Core/dice.hpp"
+#include "Core/dice.hpp"
 
 namespace dnd {
     class weapons {
@@ -55,10 +58,10 @@ namespace dnd {
                 m["SPEAR+"] = {"SPEAR+", d8, 1, 1, 8, false, 2, {20, 60}};
 
                 ///Simple Ranged Weapons
-                m["LIGHT CROSSBOW"] = {"LIGHT CROSSBOW", d8, 1, 2, 8, false, 2, {80, 320}};
+                m["LIGHT CROSSBOW"] = {"LIGHT CROSSBOW", d8, 1, 2, 8, false, 1, {80, 320}};
                 m["DART"] = {"DART", d4, 1, 3, 8, false, 3, {20, 60}};
-                m["SHORTBOW"] = {"SHORTBOW", d6, 1, 2, 8, false, 2, {80, 320}};
-                m["SLING"] = {"SLING", d4, 1, 2, 2, false, 2, {30, 120}};
+                m["SHORTBOW"] = {"SHORTBOW", d6, 1, 2, 8, false, 1, {80, 320}};
+                m["SLING"] = {"SLING", d4, 1, 2, 2, false, 1, {30, 120}};
 
                 ///Martial Melee Weapons
                 m["BATTLEAXE"] = {"BATLLEAXE", d8, 1, 1, 12, true, 0, {0, 0}};
@@ -89,10 +92,12 @@ namespace dnd {
                 m["HAND CROSSBOW"] = {"HAND CROSSBOW", d6, 1, 2, 8, true, 1, {30, 120}};
                 m["HEAVY CROSSBOW"] = {"HEAVY CROSSBOW", d10, 1, 2, 8, true, 1, {100, 400}};
                 m["LONGBOW"] = {"LONGBOW", d8, 1, 2, 8, true, 1, {150, 600}};
-                m["NET"] = {"NET", d0, 1, 2, 0, true, 2, {5, 15}};
+                m["NET"] = {"NET", d0, 1, 2, 0, true, 3, {5, 15}};
 
                 return m;
             };
         };
     };
 }
+
+#endif /* WEPONS_HPP */

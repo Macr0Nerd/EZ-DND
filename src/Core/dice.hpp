@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef DICE_HPP
+#define DICE_HPP
+
 #include <chrono>
 #include <random>
 
@@ -14,7 +17,7 @@ namespace dnd {
             ~dice() = default;
 
             int roll(){
-                if(nums) {
+                if(nums > 0) {
                     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
                     std::default_random_engine generator(seed);
 
@@ -22,8 +25,22 @@ namespace dnd {
 
                     return distribution(generator);
                 } else {
-                    return 0;
+                    return nums;
                 }
+            }
+
+            dice& operator= (const dice &a) {
+                nums = a.nums;
+
+                return *this;
+            }
+
+            bool operator== (const dice &a) const {
+                return nums == a.nums;
+            }
+
+            bool operator!= (const dice &a) const {
+                return nums != a.nums;
             }
 
         private:
@@ -42,3 +59,5 @@ namespace dnd {
     core::dice d20 = core::dice(20);
     core::dice d100 = core::dice(100);
 }
+
+#endif /* DICE_HPP */

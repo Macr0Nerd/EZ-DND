@@ -1,12 +1,15 @@
 #pragma once
 
+#ifndef CHARACTER_HPP
+#define CHARACTER_HPP
+
 #include <string>
 #include <map>
 #include <array>
 #include <utility>
 #include <vector>
 #include <cmath>
-#include "weapons.hpp"
+#include "Character/weapons.hpp"
 
 namespace dnd {
     class character {
@@ -126,6 +129,10 @@ namespace dnd {
             weapon = std::move(inWeapon);
         }
 
+        std::string getWeapon(){
+            return weapon;
+        }
+
         int attack() {
             weapons::Weapons weap = weapons::getWeapon(weapon);
 
@@ -161,3 +168,5 @@ namespace dnd {
         std::vector<int> resistances = {0};
     };
 }
+
+#endif /* CHARACTER_HPP */

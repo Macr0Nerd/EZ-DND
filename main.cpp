@@ -1,8 +1,5 @@
 #include <iostream>
-#include <map>
 #include "Character/character.hpp"
-#include "Character/weapons.hpp"
-#include "Core/dice.hpp"
 
 using std::cout;
 using std::cin;
