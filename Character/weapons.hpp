@@ -22,7 +22,7 @@ namespace dnd {
         weapons() = default;
         ~weapons() = default;
 
-        static Weapons getWeapon (std::string name){
+        static Weapons getWeapon (const std::string& name){
             return A::create_map().at(name);
         }
 

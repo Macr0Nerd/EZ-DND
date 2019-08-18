@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include <array>
+#include <utility>
 #include <vector>
 #include <cmath>
 #include "weapons.hpp"
@@ -44,10 +45,10 @@ namespace dnd {
              * @param isNPC Demarcates whether this is an NPC or PC
              */
 
-            cname = initname;
-            cclass = initclass;
-            crace = initrace;
-            cbg = initbg;
+            cname = std::move(initname);
+            cclass = std::move(initclass);
+            crace = std::move(initrace);
+            cbg = std::move(initbg);
 
             abilities = {{"STR", {strength, static_cast<int>((std::floor(strength/2) - 5))}},
                          {"DEX", {dexterity, static_cast<int>((std::floor(dexterity/2) - 5))}},
@@ -122,7 +123,7 @@ namespace dnd {
         }
 
         void setWeapon(std::string inWeapon){
-            weapon = inWeapon;
+            weapon = std::move(inWeapon);
         }
 
         int attack() {
