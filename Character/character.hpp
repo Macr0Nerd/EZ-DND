@@ -2,7 +2,10 @@
 
 #include <string>
 #include <map>
-//#include "weapons.hpp"
+#include <array>
+#include <vector>
+#include <cmath>
+#include "weapons.hpp"
 
 namespace dnd {
     class character {
@@ -46,17 +49,19 @@ namespace dnd {
             crace = initrace;
             cbg = initbg;
 
-            abilities = {{"STR", strength},
-                         {"DEX", dexterity},
-                         {"CON", constitution},
-                         {"INT", intelligence},
-                         {"WIS", wisdom},
-                         {"CHA", charisma}};
+            abilities = {{"STR", {strength, static_cast<int>((std::floor(strength/2) - 5))}},
+                         {"DEX", {dexterity, static_cast<int>((std::floor(dexterity/2) - 5))}},
+                         {"CON", {constitution, static_cast<int>((std::floor(constitution/2) - 5))}},
+                         {"INT", {intelligence, static_cast<int>((std::floor(intelligence/2) - 5))}},
+                         {"WIS", {wisdom, static_cast<int>((std::floor(wisdom/2) - 5))}},
+                         {"CHA", {charisma, static_cast<int>(std::floor(charisma/2) - 5)}}};
+
+            weapon = "FISTS";
         }
 
         ~character() = default;
 
-        std::map<std::string, int> getAbilities() {
+        std::map<std::string, std::array<int, 2> > getAbilities() {
             /**
              * Returns the ability map
              *
@@ -116,11 +121,42 @@ namespace dnd {
             return cbg;
         }
 
+        void setWeapon(std::string inWeapon){
+            weapon = inWeapon;
+        }
+
+        int attack() {
+            weapons::Weapons weap = weapons::getWeapon(weapon);
+
+            int att = weap.ability;
+            int abi = (att == 1)?abilities["DEX"][1]:(att == 2)?abilities["STR"][1]:(att == 3)?(abilities["DEX"][1]>=abilities["STR"][1])?abilities["DEX"][1]:abilities["STR"][1]:0;
+
+            int dmg = abi;
+
+            for (int i = 0; i < weap.numberDice; ++i) {
+                dmg += weap.die.roll();
+            }
+
+            return dmg;
+        }
+
+        void alterHP(signed int dmg){
+            hp += dmg;
+        }
 
     private:
-        bool npc = false;
+        static bool npc;
 
+        std::string weapon;
         std::string cname, cclass, crace, cbg;
-        std::map<std::string, int> abilities;
+        std::map<std::string, std::array<int, 2> > abilities;
+
+        int hp = 0;
+        int maxHP = 0;
+        int ac = abilities["DEX"][1] + 10;
+
+        std::vector<int> vulnerabilities = {0};
+        std::vector<int> immunities = {0};
+        std::vector<int> resistances = {0};
     };
 }

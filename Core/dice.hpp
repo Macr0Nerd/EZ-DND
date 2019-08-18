@@ -7,7 +7,7 @@ namespace dnd {
     namespace core {
         class dice {
         public:
-            dice (int sides) {
+            dice (int sides = -1) {
                 nums = sides;
             }
 
