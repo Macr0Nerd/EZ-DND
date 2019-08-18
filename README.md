@@ -22,3 +22,8 @@ Have fun.
 
 ## How to use
 I haven't even figured that out so, have fun!
+
+## Contributing
+This is far from ready for everyone so for now, if you *really* feel like you need to help, email me at macrocode@yahoo.com.
+Otherwise, just wait until Alpha comes out.
+In the meantime, you can learn how to use Catch2!
