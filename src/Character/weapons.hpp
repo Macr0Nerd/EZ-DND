@@ -5,7 +5,6 @@
 
 #include <string>
 #include <map>
-#include <vector>
 #include "Core/dice.hpp"
 
 namespace dnd {
@@ -26,6 +25,12 @@ namespace dnd {
         ~weapons() = default;
 
         static Weapons getWeapon (const std::string& name){
+            /**
+             * Easy access to the weapons map
+             *
+             * @return The weapon requested
+             */
+
             return A::create_map().at(name);
         }
 

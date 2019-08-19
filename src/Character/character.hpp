@@ -9,7 +9,9 @@
 #include <utility>
 #include <vector>
 #include <cmath>
+#include <algorithm>
 #include "Character/weapons.hpp"
+#include "Character/armor.hpp"
 
 namespace dnd {
     class character {
@@ -125,16 +127,90 @@ namespace dnd {
             return cbg;
         }
 
-        void setWeapon(std::string inWeapon){
-            weapon = std::move(inWeapon);
+        int getAC() {
+            /**
+             * Returns the armor class
+             *
+             * @return The character's AC
+             */
+
+            return ac;
         }
 
-        std::string getWeapon(){
-            return weapon;
+        void setWeapon(std::string inWeapon){
+            /**
+             * Sets the weapon and updates equipment
+             */
+
+            equipment[0] = std::move(inWeapon);
+        }
+
+        void setArmor(std::string inArmor) {
+            /**
+             * Sets the armor and updates equipment
+             */
+
+            auto arm = armor::getArmor(inArmor);
+
+            ac = arm.baseAC;
+
+            if (abilities["DEX"][1] >= arm.dexMax) {
+                ac += arm.dexMax;
+            } else {
+                ac += abilities["DEX"][1];
+            }
+
+            equipment[1] = std::move(inArmor);
+        }
+
+        void setAC(int a) {
+            ac = a;
+        }
+
+        void refreshAC() {
+            /**
+             * Refreshes the ac
+             *
+             * Required if a shield is added or removed
+             */
+
+            auto arm = armor::getArmor(equipment[1]);
+
+            ac = arm.baseAC;
+
+            if (abilities["DEX"][1] >= arm.dexMax) {
+                ac += arm.dexMax;
+            } else {
+                ac += abilities["DEX"][1];
+            }
+
+            if(std::count(equipment.begin(), equipment.end(), "SHIELD")) {
+                ac += 2;
+            }
+        }
+
+        std::string getWeapon() {
+            /**
+             * Gets the weapon name
+             *
+             * @return The weapon name
+             */
+
+            return equipment[0];
+        }
+
+        std::string getArmor() {
+            /**
+             * Gets the armor name
+             *
+             * @return The armor name
+             */
+
+            return equipment[1];
         }
 
         int attack() {
-            weapons::Weapons weap = weapons::getWeapon(weapon);
+            weapons::Weapons weap = weapons::getWeapon(equipment[0]);
 
             int att = weap.ability;
             int abi = (att == 1)?abilities["DEX"][1]:(att == 2)?abilities["STR"][1]:(att == 3)?(abilities["DEX"][1]>=abilities["STR"][1])?abilities["DEX"][1]:abilities["STR"][1]:0;
@@ -148,8 +224,24 @@ namespace dnd {
             return dmg;
         }
 
-        void alterHP(signed int dmg){
-            hp += dmg;
+        void damage(unsigned int dmg) {
+            /**
+             * Alters character hp negatively
+             */
+
+            hp -= dmg;
+        }
+
+        void heal(unsigned int heal) {
+            /**
+             * Alters character hp positively
+             */
+
+            hp += heal;
+
+            if (hp > maxHP) {
+                hp = maxHP;
+            }
         }
 
     private:
@@ -162,7 +254,13 @@ namespace dnd {
         int hp = 0;
         int maxHP = 0;
         int ac = abilities["DEX"][1] + 10;
+        int gp;
 
+        std::vector<std::string> equipment = {"FISTS", "UNARMORED"}; ///Equipped items
+        std::vector<std::string> misc = {}; ///Other items
+        std::vector<std::string> proficiencies {"Common"};
+
+        ///0 = None, 1 = Acid, 2 = Bludgeoning, 3 = Cold, 4 = Fire, 5 = Force, 6 = Lightning, 7 = Necrotic, 8 = Piercing, 9 = Poison, 10 = Psychic, 11 = Radiant, 12 = Slashing, 13 = Thunder
         std::vector<int> vulnerabilities = {0};
         std::vector<int> immunities = {0};
         std::vector<int> resistances = {0};

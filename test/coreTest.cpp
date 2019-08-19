@@ -1,8 +1,10 @@
 #define CATCH_CONFIG_MAIN
 
+#include <iostream>
 #include "catch.hpp"
 #include "Core/dice.hpp"
 #include "Character/weapons.hpp"
+#include "Character/armor.hpp"
 
 TEST_CASE("Dice can roll within a range", "[dice]") {
     SECTION("Default Dice") {
@@ -10,24 +12,27 @@ TEST_CASE("Dice can roll within a range", "[dice]") {
 
         SECTION("d0") {
             INFO("d0 Test Start");
+            std::clog << "Starting d0 Tests..." << std::endl;
 
             x = dnd::d0.roll();
             REQUIRE(x == 0);
 
-            SUCCEED("Passed d0");
+            std::cout << "Passed d0" << std::endl;
         }
 
         SECTION("d1") {
             INFO("d1 Test Start");
+            std::clog << "Starting d1 Tests..." << std::endl;
 
             x = dnd::d1.roll();
             REQUIRE(x == 1);
 
-            SUCCEED("Passed d1");
+            std::cout << "Passed d1" << std::endl;
         }
 
         SECTION("d2") {
             INFO("d2 Test Start");
+            std::clog << "Starting d2 Tests..." << std::endl;
 
             for (int i = 0; i < 5; ++i) {
                 DYNAMIC_SECTION("d2 test " << i) {
@@ -39,11 +44,12 @@ TEST_CASE("Dice can roll within a range", "[dice]") {
                 }
             }
 
-            SUCCEED("Passed d2");
+            std::cout << "Passed d2" << std::endl;
         }
 
         SECTION("d4") {
             INFO("d4 Test Start");
+            std::clog << "Starting d4 Tests..." << std::endl;
 
             for (int i = 0; i < 5; ++i) {
                 DYNAMIC_SECTION("d4 test " << i) {
@@ -55,11 +61,12 @@ TEST_CASE("Dice can roll within a range", "[dice]") {
                 }
             }
 
-            SUCCEED("Passed d4");
+            std::cout << "Passed d4" << std::endl;
         }
 
         SECTION("d6") {
             INFO("d6 Test Start");
+            std::clog << "Starting d6 Tests..." << std::endl;
 
             for (int i = 0; i < 5; ++i) {
                 DYNAMIC_SECTION("d6 test " << i) {
@@ -71,11 +78,12 @@ TEST_CASE("Dice can roll within a range", "[dice]") {
                 }
             }
 
-            SUCCEED("Passed d6");
+            std::cout << "Passed d6" << std::endl;
         }
 
         SECTION("d8") {
             INFO("d8 Test Start");
+            std::clog << "Starting d8 Tests..." << std::endl;
 
             for (int i = 0; i < 5; ++i) {
                 DYNAMIC_SECTION("d8 test" << i) {
@@ -87,11 +95,12 @@ TEST_CASE("Dice can roll within a range", "[dice]") {
                 }
             }
 
-            SUCCEED("Passed d8");
+            std::cout << "Passed d8" << std::endl;
         }
 
         SECTION("d10") {
             INFO("d10 Test Start");
+            std::clog << "Starting d10 Tests..." << std::endl;
 
             for (int i = 0; i < 5; ++i) {
                 DYNAMIC_SECTION("d10 test" << i) {
@@ -103,11 +112,12 @@ TEST_CASE("Dice can roll within a range", "[dice]") {
                 }
             }
 
-            SUCCEED("Passed d10");
+            std::cout << "Passed d10" << std::endl;
         }
 
         SECTION("d12") {
             INFO("d12 Test Start");
+            std::clog << "Starting d12 Tests..." << std::endl;
 
             for (int i = 0; i < 5; ++i) {
                 DYNAMIC_SECTION("d12 test" << i) {
@@ -119,11 +129,12 @@ TEST_CASE("Dice can roll within a range", "[dice]") {
                 }
             }
 
-            SUCCEED("Passed d12");
+            std::cout << "Passed d12" << std::endl;
         }
 
         SECTION("d20") {
             INFO("d20 Test Start");
+            std::clog << "Starting d20 Tests..." << std::endl;
 
             for (int i = 0; i < 5; ++i) {
                 DYNAMIC_SECTION("d20 test" << i) {
@@ -135,11 +146,12 @@ TEST_CASE("Dice can roll within a range", "[dice]") {
                 }
             }
 
-            SUCCEED("Passed d20");
+            std::cout << "Passed d20" << std::endl;
         }
 
         SECTION("d100") {
             INFO("d100 Test Start");
+            std::clog << "Starting d100 Tests..." << std::endl;
 
             for (int i = 0; i < 5; ++i) {
                 DYNAMIC_SECTION("d100 test" << i) {
@@ -151,10 +163,10 @@ TEST_CASE("Dice can roll within a range", "[dice]") {
                 }
             }
 
-            SUCCEED("Passed d100");
+            std::cout << "Passed d100" << std::endl;
         }
 
-        SUCCEED("Passed Default Dice");
+        std::cout << "Passed Default Dice" << std::endl;
     }
 
     SECTION("Custom dice") {
@@ -162,16 +174,18 @@ TEST_CASE("Dice can roll within a range", "[dice]") {
 
         SECTION("Default Case") {
             INFO("Default Test Start");
+            std::clog << "Starting default case Tests..." << std::endl;
 
             REQUIRE(die.roll() == -1);
 
-            SUCCEED("Passed default case");
+            std::cout << "Passed default case" << std::endl;
         }
 
         SECTION("Custom Case") {
             int x;
 
             INFO("Custom Case Start");
+            std::clog << "Starting custom case Tests..." << std::endl;
 
             die = dnd::core::dice(50);
 
@@ -186,59 +200,64 @@ TEST_CASE("Dice can roll within a range", "[dice]") {
                 }
             }
 
-            SUCCEED("Passed Custom Case");
+            std::cout << "Passed Custom Case" << std::endl;
         }
 
         SECTION("Non-Natural Case") {
             die = dnd::core::dice(-10);
 
             INFO("Non-natural Test Start");
+            std::clog << "Starting non-natural case Tests..." << std::endl;
 
             CHECK(die.roll() == -10);
 
-            SUCCEED("Passed non-natural case");
+            std::cout << "Passed non-natural case" << std::endl;
         }
 
-        SUCCEED("Passed Custom Dice");
+        std::cout << "Passed Custom Dice" << std::endl;
     }
 }
 
 TEST_CASE("Weapons data is accessible", "[weapons]") {
     SECTION("Dice check") {
         INFO("Dice tests starting");
+        std::clog << "Starting weapons/dice Tests..." << std::endl;
 
         CHECK(dnd::weapons::getWeapon("DAGGER").die == dnd::d4);
         CHECK(dnd::weapons::getWeapon("SHORTBOW").die == dnd::d6);
         CHECK(dnd::weapons::getWeapon("LONGSWORD+").die == dnd::d10);
         CHECK(dnd::weapons::getWeapon("LONGBOW").die == dnd::d8);
 
-        SUCCEED("Passed dice tests");
+        std::cout << "Passed dice tests" << std::endl;
     }
 
     SECTION("Ability check") {
         INFO("Ability tests starting");
+        std::clog << "Starting weapons/ability Tests..." << std::endl;
 
         CHECK(dnd::weapons::getWeapon("DAGGER").ability == 3);
         CHECK(dnd::weapons::getWeapon("SHORTBOW").ability == 2);
         CHECK(dnd::weapons::getWeapon("LONGSWORD+").ability == 1);
         CHECK(dnd::weapons::getWeapon("LONGBOW").ability == 2);
 
-        SUCCEED("Passed ability tests");
+        std::cout << "Passed ability tests" << std::endl;
     }
 
     SECTION("Martial Check") {
         INFO("Martial tests starting");
+        std::clog << "Starting weapons/martial Tests..." << std::endl;
 
         CHECK_FALSE(dnd::weapons::getWeapon("DAGGER").martial);
         CHECK_FALSE(dnd::weapons::getWeapon("SHORTBOW").martial);
         CHECK(dnd::weapons::getWeapon("LONGSWORD+").martial);
         CHECK(dnd::weapons::getWeapon("LONGBOW").martial);
 
-        SUCCEED("Passed martial tests");
+        std::cout << "Passed martial tests" << std::endl;
     }
 
     SECTION("Range Check") {
         INFO("Range tests starting");
+        std::clog << "Starting weapons/range Tests..." << std::endl;
 
         CHECK(dnd::weapons::getWeapon("DAGGER").ranged == 2);
         CHECK(dnd::weapons::getWeapon("DAGGER").range.first == 20);
@@ -256,6 +275,41 @@ TEST_CASE("Weapons data is accessible", "[weapons]") {
         CHECK(dnd::weapons::getWeapon("NET").range.first == 5);
         CHECK(dnd::weapons::getWeapon("NET").range.second == 15);
 
-        SUCCEED("Passed range tests");
+        std::cout << "Passed range tests" << std::endl;
+    }
+}
+
+TEST_CASE("Armor data is accessible", "[armor]") {
+    SECTION("Base AC") {
+        INFO("Base AC Tests");
+        std::clog << "Starting armor/ac Tests..." << std::endl;
+
+        CHECK(dnd::armor::getArmor("LEATHER").baseAC == 11);
+        CHECK(dnd::armor::getArmor("BREASTPLATE").baseAC == 14);
+        CHECK(dnd::armor::getArmor("PLATE").baseAC == 18);
+
+        std::cout << "Passed base AC" << std::endl;
+    }
+
+    SECTION("Armor type") {
+        INFO("Armor Type Tests");
+        std::clog << "Starting armor/type Tests..." << std::endl;
+
+        CHECK(dnd::armor::getArmor("LEATHER").armType == 'L');
+        CHECK(dnd::armor::getArmor("BREASTPLATE").armType == 'M');
+        CHECK(dnd::armor::getArmor("PLATE").armType == 'H');
+
+        std::cout << "Passed armor type" << std::endl;
+    }
+
+    SECTION("Stealth") {
+        INFO("Stealth Tests");
+        std::clog << "Starting armor/stealth Tests..." << std::endl;
+
+        CHECK_FALSE(dnd::armor::getArmor("LEATHER").disadvantage);
+        CHECK_FALSE(dnd::armor::getArmor("BREASTPLATE").disadvantage);
+        CHECK(dnd::armor::getArmor("PLATE").disadvantage);
+
+        std::cout << "Passes stealth tests" << std::endl;
     }
 }
