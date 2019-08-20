@@ -152,6 +152,7 @@ namespace dnd {
             cclass = std::move(initclass);
             crace = std::move(initrace);
             cbg = std::move(initbg);
+            clevel = level;
 
             abilities = {{"STR", {strength, static_cast<int>((std::floor(strength/2) - 5))}},
                          {"DEX", {dexterity, static_cast<int>((std::floor(dexterity/2) - 5))}},
@@ -166,6 +167,53 @@ namespace dnd {
         }
 
         ~character() = default;
+
+        character& operator= (const character &a) {
+            /**
+             * Overriding the assignment operator to copy characters completely
+             *
+             * @param a The input character
+             *
+             * @return The copied character
+             */
+
+            npc = a.npc;
+
+            weapon = a.weapon;
+            cname = a.cname; crace = a.crace; cclass = a.cclass; cbg = a.cbg; clevel = a.clevel;
+
+            abilities = a.abilities;
+
+            hp = a.hp; maxHP = a.maxHP; ac = a.ac; gp = a.gp; speed = a.speed;
+
+            equipment = a.equipment; misc = a.misc; proBonus = a.proBonus; proficiencies = a.proficiencies;
+            traits = a.traits; saves = a.saves;
+
+            size = a.size;
+
+            vulnerabilities = a.vulnerabilities; resistances = a.resistances; immunities = a.immunities;
+            effects = a.effects;
+
+            return *this;
+        }
+
+        character& operator>> (const character &a) {
+            /**
+             * Overriding the right shift operator to soft copy characters
+             *
+             * Essentially copies equipment; That's all
+             *
+             * @param a The input character
+             *
+             * @return The soft copy of the character
+             */
+
+            gp = a.gp;
+
+            equipment = a.equipment; misc = a.misc;
+
+            return *this;
+        }
 
         std::map<std::string, std::array<int, 2> > getAbilities() {
             /**
@@ -365,10 +413,11 @@ namespace dnd {
         }
 
     private:
-        static bool npc;
+        bool npc;
 
         std::string weapon;
         std::string cname, cclass, crace, cbg;
+        int clevel;
         std::map<std::string, std::array<int, 2> > abilities;
 
         int hp = 0;
@@ -387,7 +436,26 @@ namespace dnd {
         char size = 'M'; ///Sets the size
 
         ///Mapping the skills to an ability
-        std::map<std::string, unsigned short> skills = {};
+        std::map<std::string, std::string> skills = {
+                {"ATHLETICS", "STR"},
+                {"ACROBATICS", "DEX"},
+                {"SLEIGHT OF HAND", "DEX"},
+                {"STEALTH", "DEX"},
+                {"ARCANA", "INT"},
+                {"HISTORY", "INT"},
+                {"INVESTIGATION", "INT"},
+                {"NATURE", "INT"},
+                {"RELIGION", "INT"},
+                {"ANIMAL HANDLING", "WIS"},
+                {"INSIGHT", "WIS"},
+                {"MEDICINE", "WIS"},
+                {"PERCEPTION", "WIS"},
+                {"SURVIVAL", "WIS"},
+                {"DECEPTION", "CHA"},
+                {"INTIMIDATION", "CHA"},
+                {"PERFORMANCE", "CHA"},
+                {"PERSUASION", "CHA"}
+        };
 
         ///0 = None, 1 = Acid, 2 = Bludgeoning, 3 = Cold, 4 = Fire, 5 = Force, 6 = Lightning, 7 = Necrotic, 8 = Piercing, 9 = Poison, 10 = Psychic, 11 = Radiant, 12 = Slashing, 13 = Thunder
         std::vector<int> vulnerabilities = {0};
