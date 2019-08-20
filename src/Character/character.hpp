@@ -113,6 +113,35 @@ namespace dnd {
             };
         };
 
+        class background {
+        public:
+            background() = default;
+            ~background() = default;
+
+            struct Background {
+                int gp;
+
+                std::vector<std::string> prof;
+                std::vector<std::string> equip;
+            };
+
+            static Background getBG(const std::string& name) {
+                return A::createMap()[name];
+            }
+
+        private:
+            struct A {
+                static std::map<std::string, Background> createMap() {
+                    std::map<std::string, Background> m;
+
+                    m["ACOLYTE"] = {15, {"INSIGHT", "RELIGION"},
+                                    {"Holy Symbol", "Prayer Book", "5 sticks of incense", "vestments", "set of common clothes"}};
+
+                    return m;
+                };
+            };
+        };
+
     public:
         character(std::string initname,
                   std::string initclass,
@@ -161,9 +190,10 @@ namespace dnd {
                          {"WIS", {wisdom, static_cast<int>((std::floor(wisdom/2) - 5))}},
                          {"CHA", {charisma, static_cast<int>(std::floor(charisma/2) - 5)}}};
 
-            weapon = "FISTS";
-
-            setRace(crace);
+            if (clevel == 1) {
+                setRace(crace);
+                setBG(cbg);
+            }
         }
 
         ~character() = default;
@@ -179,7 +209,6 @@ namespace dnd {
 
             npc = a.npc;
 
-            weapon = a.weapon;
             cname = a.cname; crace = a.crace; cclass = a.cclass; cbg = a.cbg; clevel = a.clevel;
 
             abilities = a.abilities;
@@ -187,7 +216,7 @@ namespace dnd {
             hp = a.hp; maxHP = a.maxHP; ac = a.ac; gp = a.gp; speed = a.speed;
 
             equipment = a.equipment; misc = a.misc; proBonus = a.proBonus; proficiencies = a.proficiencies;
-            traits = a.traits; saves = a.saves;
+            traits = a.traits; saves = a.saves; languages = a.languages;
 
             size = a.size;
 
@@ -251,7 +280,7 @@ namespace dnd {
             return cclass;
         }
 
-        std::string getRace(){
+        std::string getRace() {
             /**
              * Returns the race of the character
              *
@@ -263,7 +292,7 @@ namespace dnd {
             return crace;
         }
 
-        std::string getBg(){
+        std::string getBg() {
             /**
              * Returns the race of the character
              *
@@ -285,7 +314,17 @@ namespace dnd {
             return ac;
         }
 
-        void setWeapon(std::string inWeapon){
+        int getGP() {
+            /**
+             * Gets the character's gold count
+             *
+             * @return Amount of gold
+             */
+
+            return gp;
+        }
+
+        void setWeapon(std::string inWeapon) {
             /**
              * Sets the weapon and updates equipment
              */
@@ -313,6 +352,16 @@ namespace dnd {
 
         void setAC(int a) {
             ac = a;
+        }
+
+        void setGP(int g) {
+            /**
+             * Sets the character's gold amount
+             *
+             * @param g The amount of gold
+             */
+
+            gp = g;
         }
 
         void refreshAC() {
@@ -412,10 +461,27 @@ namespace dnd {
             }
         }
 
-    private:
-        bool npc;
+        int rollSkill(const std::string& skill) {
+            /**
+             * Returns a random dice roll for the provided skill
+             *
+             * @param skill The skill to roll for
+             *
+             * @return The roll with skill & proficiency if applicable
+             */
 
-        std::string weapon;
+            int x = abilities[skills[skill]][1];
+
+            if (std::count(proficiencies.begin(), proficiencies.end(), skill)){
+                x += proBonus;
+            }
+
+            return d20.roll() + x;
+        }
+
+    private:
+        bool npc = false;
+
         std::string cname, cclass, crace, cbg;
         int clevel;
         std::map<std::string, std::array<int, 2> > abilities;
@@ -423,14 +489,15 @@ namespace dnd {
         int hp = 0;
         int maxHP = 0;
         int ac = abilities["DEX"][1] + 10;
-        int gp;
-        unsigned int speed;
+        int gp = 0;
+        unsigned int speed = 30;
 
-        std::vector<std::string> equipment = {"FISTS", "UNARMORED"}; ///Equipped items
+        std::vector<std::string> equipment = {"FISTS", "UNARMORED", "UNSHIELDED"}; ///Equipped items
         std::vector<std::string> misc = {}; ///Other items
         unsigned short proBonus = 2;
         std::map<std::string, std::string> traits;
-        std::vector<std::string> proficiencies {"COMMON"};
+        std::vector<std::string> proficiencies;
+        std::vector<std::string> languages = {"COMMON"};
         std::vector<std::string> saves;
 
         char size = 'M'; ///Sets the size
@@ -464,7 +531,7 @@ namespace dnd {
         std::vector<std::string> effects;
 
 
-        void setRace(std::string name) {
+        void setRace(const std::string& name) {
             /**
              * Sets the race and abilities and stuff
              *
@@ -473,7 +540,7 @@ namespace dnd {
 
             race::Race x = race::getRace(name);
 
-            for (int i = 0; i < x.abis.size(); ++i){
+            for (unsigned long i = 0; i < x.abis.size(); ++i){
                 if (x.abis[i] == "HP") {
                     hp += x.boosts[i];
                 } else {
@@ -487,6 +554,15 @@ namespace dnd {
 
             traits.insert(x.traits.begin(), x.traits.end());
             proficiencies.insert(proficiencies.end(), x.prof.begin(), x.prof.end());
+        }
+
+        void setBG(const std::string& name) {
+            background::Background x = background::getBG(name);
+
+            gp = x.gp;
+
+            proficiencies.insert(proficiencies.end(), x.prof.begin(), x.prof.end());
+            misc.insert(misc.end(), x.equip.begin(), x.equip.end());
         }
     };
 }
