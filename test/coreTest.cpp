@@ -2,9 +2,7 @@
 
 #include <iostream>
 #include "catch.hpp"
-#include "Core/dice.hpp"
-#include "Character/weapons.hpp"
-#include "Character/armor.hpp"
+#include "Core/board.hpp"
 
 TEST_CASE("Dice can roll within a range", "[dice]") {
     SECTION("Default Dice") {
@@ -311,5 +309,42 @@ TEST_CASE("Armor data is accessible", "[armor]") {
         CHECK(dnd::armor::getArmor("PLATE").disadvantage);
 
         std::cout << "Passes stealth tests" << std::endl;
+    }
+}
+
+TEST_CASE("The board's functions work", "[board]") {
+    dnd::character fred = dnd::character("Fred", "PALADIN", "HILL DWARF", "ACOLYTE", 1, 14, 12, 15, 8, 13, 10, false);
+    fred.setWeapon("GREATSWORD");
+    fred.setArmor("PLATE");
+
+    dnd::character bob = dnd::character("Bob", "ROGUE", "LIGHTFOOT HALFLING", "ACOLYTE", 1, 10, 14, 15, 12, 8, 13);
+    bob.setWeapon("RAPIER");
+    bob.setArmor("STUDDED LEATHER");
+
+    dnd::core::board board = dnd::core::board(15);
+
+    board.place(fred, 6, 6);
+    board.place(bob, 7, 6);
+    
+    SECTION("Adjacent Test") {
+        INFO("Starting adjacent test");
+        std::clog << "Starting adjacent tests..." << std::endl;
+        
+        CHECK(board.getAdjacent(fred)[0].getName() == "Bob");
+        
+        std::cout << "Passed adjacent test" << std::endl;
+    }
+    
+    SECTION("Move Test") {
+        INFO("Starting move test");
+        std::clog << "Starting adjacent tests..." << std::endl;
+        
+        CHECK(board.getPos(bob).first == 7);
+        
+        board.move(bob, 5, 6);
+        
+        CHECK(board.getPos(bob).first == 5);
+        
+        std::cout << "Passed move test" << std::endl;
     }
 }

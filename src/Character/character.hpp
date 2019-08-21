@@ -190,13 +190,25 @@ namespace dnd {
                          {"WIS", {wisdom, static_cast<int>((std::floor(wisdom/2) - 5))}},
                          {"CHA", {charisma, static_cast<int>(std::floor(charisma/2) - 5)}}};
 
-            if (clevel == 1) {
+            if (clevel == 1 && cname != "EMPTY") {
                 setRace(crace);
                 setBG(cbg);
             }
         }
 
         ~character() = default;
+
+        bool operator== (const character &a) const {
+            return npc == a.npc && cname == a.cname && cclass == a.cclass && crace == a.crace
+                   && cbg == a.cbg && clevel == a.clevel && ac == a.ac && equipment == a.equipment
+                   && misc == a.misc && size == a.size;
+        }
+
+        bool operator== (const character &a) {
+            return npc == a.npc && cname == a.cname && cclass == a.cclass && crace == a.crace
+                   && cbg == a.cbg && clevel == a.clevel && ac == a.ac && equipment == a.equipment
+                   && misc == a.misc && size == a.size;
+        }
 
         character& operator= (const character &a) {
             /**
