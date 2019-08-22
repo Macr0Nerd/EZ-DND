@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <map>
+#include <iostream>
 #include "Character/character.hpp"
 
 namespace dnd::core {
@@ -27,6 +28,14 @@ namespace dnd::core {
 
         bool operator!= (const board &a) {
             return b != a.b;
+        }
+
+
+        ///Serialization/Deserialization Functions
+        friend std::ostream& operator<< (std::ostream& out, const board& obj) {
+
+
+            return out;
         }
 
 
