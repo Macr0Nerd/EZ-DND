@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef CHARACTER_HPP
-#define CHARACTER_HPP
+#ifndef EZDND_CHARACTER_HPP
+#define EZDND_CHARACTER_HPP
 
 #include <iostream>
 #include <fstream>
@@ -145,6 +145,9 @@ namespace dnd {
         };
 
     public:
+        ///Used to keep track of characters; 0 is for placeholder, 1-1000 is for NPCs, 1001+ is for PCs
+        unsigned long uid = 0;
+
         character(std::string initname,
                   std::string initclass,
                   std::string initrace,
@@ -156,7 +159,8 @@ namespace dnd {
                   int intelligence = 10,
                   int wisdom = 10,
                   int charisma = 10,
-                  bool isNPC = false) : cname(std::move(initname)), cclass(std::move(initclass)), crace(std::move(initrace)), cbg(std::move(initbg)), clevel(level) {
+                  bool isNPC = false,
+                  unsigned long id = 0) {
             /**
              * Creates the character with basic attributes and stats in an easy constructor
              *
@@ -179,6 +183,10 @@ namespace dnd {
              * @param isNPC Demarcates whether this is an NPC or PC
              */
 
+            uid = id;
+
+            cname = initname; crace = initrace; cclass = initclass; cbg = initbg; clevel = level; npc = isNPC;
+
             abilities = {{"STR", {strength, static_cast<int>((std::floor(strength/2) - 5))}},
                          {"DEX", {dexterity, static_cast<int>((std::floor(dexterity/2) - 5))}},
                          {"CON", {constitution, static_cast<int>((std::floor(constitution/2) - 5))}},
@@ -186,7 +194,7 @@ namespace dnd {
                          {"WIS", {wisdom, static_cast<int>((std::floor(wisdom/2) - 5))}},
                          {"CHA", {charisma, static_cast<int>(std::floor(charisma/2) - 5)}}};
 
-            if (clevel == 1 && cname != "EMPTY") {
+            if (uid) {
                 setRace(crace);
                 setBG(cbg);
             }
@@ -195,15 +203,11 @@ namespace dnd {
         ~character() = default;
 
         bool operator== (const character &a) const {
-            return npc == a.npc && cname == a.cname && cclass == a.cclass && crace == a.crace
-                   && cbg == a.cbg && clevel == a.clevel && ac == a.ac && equipment == a.equipment
-                   && misc == a.misc && size == a.size;
+            return uid == a.uid;
         }
 
         bool operator== (const character &a) {
-            return npc == a.npc && cname == a.cname && cclass == a.cclass && crace == a.crace
-                   && cbg == a.cbg && clevel == a.clevel && ac == a.ac && equipment == a.equipment
-                   && misc == a.misc && size == a.size;
+            return uid == a.uid;
         }
 
         character& operator= (const character &a) {
@@ -230,6 +234,8 @@ namespace dnd {
 
             vulnerabilities = a.vulnerabilities; resistances = a.resistances; immunities = a.immunities;
             effects = a.effects;
+
+            uid = a.uid;
 
             return *this;
         }
@@ -401,6 +407,8 @@ namespace dnd {
                     out << "\n";
                 }
 
+                out << uid;
+
                 std::cout << "WRITTEN" << std::endl;
             } else {
                 std::cerr << "CAN'T WRITE" << std::endl;
@@ -410,105 +418,137 @@ namespace dnd {
             out.close();
         }
 
-        void load(std::string file) {
+        void load(const std::string& file) {
             std::ifstream fin;
             fin.open(file);
 
-            std::string tmp; std::string token; std::string delim = ",";
-            size_t pos = 0;
+            if(fin.good()) {
+                std::string tmp;
+                std::string token;
+                std::string delim = ",";
+                size_t pos = 0;
 
-            getline(fin, tmp); std::stoi(tmp) >> npc;
-            getline(fin, cname); getline(fin, cclass); getline(fin, crace); getline(fin, cbg);
-            getline(fin, tmp); std::stoi(tmp) >> clevel;
-
-            for (auto &i : abilities) {
                 getline(fin, tmp);
-                token = tmp.substr(0, tmp.find(delim));
-                abilities[i.first][0] = std::stoi(token);
-                tmp.erase(0, tmp.find(delim) + delim.length());
-                abilities[i.first][1] = std::stoi(tmp);
-            }
+                std::stoi(tmp) >> npc;
+                getline(fin, cname);
+                getline(fin, cclass);
+                getline(fin, crace);
+                getline(fin, cbg);
+                getline(fin, tmp);
+                std::stoi(tmp) >> clevel;
 
-            getline(fin, tmp); std::stoi(tmp) >> hp;
-            getline(fin, tmp); std::stoi(tmp) >> maxHP;
-            getline(fin, tmp); std::stoi(tmp) >> ac;
-            getline(fin, tmp); std::stoi(tmp) >> gp;
-            getline(fin, tmp); std::stoi(tmp) >> speed;
+                for (auto &i : abilities) {
+                    getline(fin, tmp);
+                    token = tmp.substr(0, tmp.find(delim));
+                    abilities[i.first][0] = std::stoi(token);
+                    tmp.erase(0, tmp.find(delim) + delim.length());
+                    abilities[i.first][1] = std::stoi(tmp);
+                }
 
-            tmp.clear(); equipment.clear();
-            getline(fin, tmp);
-            while ((pos = tmp.find(delim)) != std::string::npos) {
-                token = tmp.substr(0, pos);
-                equipment.push_back(token);
-                tmp.erase(0, pos + delim.length());
-            }
+                getline(fin, tmp);
+                std::stoi(tmp) >> hp;
+                getline(fin, tmp);
+                std::stoi(tmp) >> maxHP;
+                getline(fin, tmp);
+                std::stoi(tmp) >> ac;
+                getline(fin, tmp);
+                std::stoi(tmp) >> gp;
+                getline(fin, tmp);
+                std::stoi(tmp) >> speed;
 
-            tmp.clear(); misc.clear();
-            getline(fin, tmp);
-            while ((pos = tmp.find(delim)) != std::string::npos) {
-                token = tmp.substr(0, pos);
-                misc.push_back(token);
-                tmp.erase(0, pos + delim.length());
-            }
+                tmp.clear();
+                equipment.clear();
+                getline(fin, tmp);
+                while ((pos = tmp.find(delim)) != std::string::npos) {
+                    token = tmp.substr(0, pos);
+                    equipment.push_back(token);
+                    tmp.erase(0, pos + delim.length());
+                }
 
-            getline(fin, tmp); std::stoi(tmp) >> proBonus;
+                tmp.clear();
+                misc.clear();
+                getline(fin, tmp);
+                while ((pos = tmp.find(delim)) != std::string::npos) {
+                    token = tmp.substr(0, pos);
+                    misc.push_back(token);
+                    tmp.erase(0, pos + delim.length());
+                }
 
-            tmp.clear(); proficiencies.clear();
-            getline(fin, tmp);
-            while ((pos = tmp.find(delim)) != std::string::npos) {
-                token = tmp.substr(0, pos);
-                proficiencies.push_back(token);
-                tmp.erase(0, pos + delim.length());
-            }
+                getline(fin, tmp);
+                std::stoi(tmp) >> proBonus;
 
-            tmp.clear(); languages.clear();
-            getline(fin, tmp);
-            while ((pos = tmp.find(delim)) != std::string::npos) {
-                token = tmp.substr(0, pos);
-                languages.push_back(token);
-                tmp.erase(0, pos + delim.length());
-            }
+                tmp.clear();
+                proficiencies.clear();
+                getline(fin, tmp);
+                while ((pos = tmp.find(delim)) != std::string::npos) {
+                    token = tmp.substr(0, pos);
+                    proficiencies.push_back(token);
+                    tmp.erase(0, pos + delim.length());
+                }
 
-            tmp.clear(); saves.clear();
-            getline(fin, tmp);
-            while ((pos = tmp.find(delim)) != std::string::npos) {
-                token = tmp.substr(0, pos);
-                saves.push_back(token);
-                tmp.erase(0, pos + delim.length());
-            }
+                tmp.clear();
+                languages.clear();
+                getline(fin, tmp);
+                while ((pos = tmp.find(delim)) != std::string::npos) {
+                    token = tmp.substr(0, pos);
+                    languages.push_back(token);
+                    tmp.erase(0, pos + delim.length());
+                }
 
-            getline(fin, tmp); tmp[0] >> size;
+                tmp.clear();
+                saves.clear();
+                getline(fin, tmp);
+                while ((pos = tmp.find(delim)) != std::string::npos) {
+                    token = tmp.substr(0, pos);
+                    saves.push_back(token);
+                    tmp.erase(0, pos + delim.length());
+                }
 
-            tmp.clear(); vulnerabilities.clear();
-            getline(fin, tmp);
-            while ((pos = tmp.find(delim)) != std::string::npos) {
-                token = tmp.substr(0, pos);
-                vulnerabilities.push_back(std::stoi(token));
-                tmp.erase(0, pos + delim.length());
-            }
+                getline(fin, tmp);
+                tmp[0] >> size;
 
-            tmp.clear(); resistances.clear();
-            getline(fin, tmp);
-            while ((pos = tmp.find(delim)) != std::string::npos) {
-                token = tmp.substr(0, pos);
-                resistances.push_back(std::stoi(token));
-                tmp.erase(0, pos + delim.length());
-            }
+                tmp.clear();
+                vulnerabilities.clear();
+                getline(fin, tmp);
+                while ((pos = tmp.find(delim)) != std::string::npos) {
+                    token = tmp.substr(0, pos);
+                    vulnerabilities.push_back(std::stoi(token));
+                    tmp.erase(0, pos + delim.length());
+                }
 
-            tmp.clear(); immunities.clear();
-            getline(fin, tmp);
-            while ((pos = tmp.find(delim)) != std::string::npos) {
-                token = tmp.substr(0, pos);
-                immunities.push_back(std::stoi(token));
-                tmp.erase(0, pos + delim.length());
-            }
+                tmp.clear();
+                resistances.clear();
+                getline(fin, tmp);
+                while ((pos = tmp.find(delim)) != std::string::npos) {
+                    token = tmp.substr(0, pos);
+                    resistances.push_back(std::stoi(token));
+                    tmp.erase(0, pos + delim.length());
+                }
 
-            tmp.clear(); effects.clear();
-            getline(fin, tmp);
-            while ((pos = tmp.find(delim)) != std::string::npos) {
-                token = tmp.substr(0, pos);
-                effects.push_back(token);
-                tmp.erase(0, pos + delim.length());
+                tmp.clear();
+                immunities.clear();
+                getline(fin, tmp);
+                while ((pos = tmp.find(delim)) != std::string::npos) {
+                    token = tmp.substr(0, pos);
+                    immunities.push_back(std::stoi(token));
+                    tmp.erase(0, pos + delim.length());
+                }
+
+                tmp.clear();
+                effects.clear();
+                getline(fin, tmp);
+                while ((pos = tmp.find(delim)) != std::string::npos) {
+                    token = tmp.substr(0, pos);
+                    effects.push_back(token);
+                    tmp.erase(0, pos + delim.length());
+                }
+
+                getline(fin, tmp);
+                std::stoi(tmp) >> uid;
+
+                std::cout << "READ" << std::endl;
+            } else {
+                std::cerr << "CAN'T READ" << std::endl;
             }
 
             fin.close();
@@ -837,4 +877,4 @@ namespace dnd {
     };
 }
 
-#endif /* CHARACTER_HPP */
+#endif /* EZDND_CHARACTER_HPP */

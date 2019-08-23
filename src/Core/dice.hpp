@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef DICE_HPP
-#define DICE_HPP
+#ifndef EZDND_DICE_HPP
+#define EZDND_DICE_HPP
 
 #include <chrono>
 #include <random>
@@ -60,4 +60,4 @@ namespace dnd {
     core::dice d100 = core::dice(100);
 }
 
-#endif /* DICE_HPP */
+#endif /* EZDND_DICE_HPP */

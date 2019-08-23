@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef WEAPONS_HPP
-#define WEAPONS_HPP
+#ifndef EZDND_WEAPONS_HPP
+#define EZDND_WEAPONS_HPP
 
 #include <string>
 #include <map>
@@ -105,4 +105,4 @@ namespace dnd {
     };
 }
 
-#endif /* WEPONS_HPP */
+#endif /* EZDND_WEAPONS_HPP */

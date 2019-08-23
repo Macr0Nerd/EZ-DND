@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef ARMOR_HPP
-#define ARMOR_HPP
+#ifndef EZDND_ARMOR_HPP
+#define EZDND_ARMOR_HPP
 
 #include <string>
 #include <map>
@@ -68,4 +68,4 @@ namespace dnd {
     };
 }
 
-#endif /* ARMOR_HPP */
+#endif /* EZDND_ARMOR_HPP */
