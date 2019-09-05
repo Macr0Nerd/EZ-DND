@@ -554,6 +554,14 @@ namespace dnd {
             fin.close();
         }
 
+        void addTrait(const std::string& name, const std::string& description) {
+            traits.emplace(name, description);
+        }
+
+        void addProf(const std::string& name) {
+            proficiencies.push_back(name);
+        }
+
         std::map<std::string, std::array<int, 2> > getAbilities() {
             /**
              * Returns the ability map

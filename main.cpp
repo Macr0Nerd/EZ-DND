@@ -1,35 +1,73 @@
 #include <iostream>
-#include <vector>
-#include "Core/board.hpp"
+#include <utility>
+#include <Poco/StreamCopier.h>
+#include <Poco/FileStream.h>
+#include <Poco/Timespan.h>
+#include <Poco/Thread.h>
+#include <Poco/Runnable.h>
+#include <Poco/Net/SocketAddress.h>
+#include <Poco/Net/Socket.h>
+#include <Poco/Net/StreamSocket.h>
+#include <Poco/Net/ServerSocket.h>
+#include <Poco/Net/SocketStream.h>
 
 using std::cout;
 using std::cin;
 using std::endl;
 
+class Send : public Poco::Runnable {
+public:
+    Send(std::string  f, int p) : file(std::move(f)), port(p) {};
+
+    virtual void run(){
+        Poco::Net::ServerSocket srvs(Poco::Net::SocketAddress("localhost", port));
+        Poco::Timespan span(250000);
+
+        while(true) {
+            if(srvs.poll(span, Poco::Net::Socket::SELECT_READ)) {
+                Poco::Net::StreamSocket strs = srvs.acceptConnection();
+                Poco::Net::SocketStream ostr(strs);
+
+                Poco::FileInputStream istr(file, std::ios::binary);
+                Poco::StreamCopier::copyStream(istr, ostr);
+            } else {
+                break;
+            }
+        }
+    }
+
+private:
+    int port;
+    std::string file;
+};
+
+class Reci : public Poco::Runnable {
+public:
+    Reci(std::string f, int p) : file(std::move(f)), port(p) {}
+
+    virtual void run() {
+        Poco::Net::StreamSocket ss;
+        ss.connect(Poco::Net::SocketAddress("localhost", port));
+        Poco::Net::SocketStream istr(ss);
+
+        Poco::FileOutputStream ostr(file, std::ios::binary);
+        Poco::StreamCopier::copyStream(istr, ostr);
+    }
+
+private:
+    int port;
+    std::string file;
+};
+
 int main(){
-    dnd::character fred = dnd::character("FRED", "PALADIN", "HILL DWARF", "ACOLYTE", 1, 14, 12, 15, 8, 13, 10, false, 1001);
-    fred.setWeapon("GREATSWORD");
-    fred.setArmor("PLATE");
+    Send send("data/fred.ezdc", 1560);
+    Reci reci("test.ezdc", 1560);
+    Poco::Thread threadSend, threadReci;
 
-    fred.save("data/fred.ezdc");
-
-    dnd::character bob = dnd::character("Bob", "ROGUE", "LIGHTFOOT HALFLING", "ACOLYTE", 1, 10, 14, 15, 12, 8, 13, true, 1002);
-    bob.setWeapon("RAPIER");
-    bob.setArmor("STUDDED LEATHER");
-
-    dnd::core::board board;
-    dnd::core::board z;
-
-    board.place(bob, 6, 6);
-    board.place(fred, 6, 7);
-
-    std::vector<dnd::character> x;
-    x.push_back(fred); x.push_back(bob);
-
-    board.save("data/board.ezdb");
-    z.load("data/board.ezdb", x);
-
-    cout << z.getAdjacent(bob.uid)[0].getName() << endl;
+    threadSend.start(send);
+    threadReci.start(reci);
+    threadReci.join();
+    threadSend.join();
 
     return 0;
 }
