@@ -60,6 +60,19 @@ public:
         Poco::StreamCopier::copyStream(istr, ostr);
     }
 
+    std::string action() {
+        unsigned char mess[5] = "Ack!"; std::string action;
+        socket().sendBytes(mess, sizeof(mess));
+
+        unsigned char inBuff[1000];
+        socket().receiveBytes(inBuff, sizeof(inBuff));
+
+        action = std::string(reinterpret_cast<char const*>(inBuff));
+        action.erase(remove_if(action.begin(), action.end(), [](char c){ return c != ' ' && !isalnum(c) && c != ','; } ), action.end());
+
+        return action;
+    }
+
     void run() final {
         std::clog << "New connection from: " << socket().peerAddress().host().toString() << std::endl << std::flush;
         bool isOpen = true;
@@ -77,9 +90,8 @@ public:
                 try {
                     nBytes = socket().receiveBytes(inBuff, sizeof(inBuff));
                     message = std::string(reinterpret_cast<char const*>(inBuff));
-                    message.erase(message.length()-1);
-                }
-                catch (Poco::Exception &exc) {
+                    message.erase(remove_if(message.begin(), message.end(), [](char c){ return isspace(c) || !isalpha(c); } ), message.end());
+                } catch (Poco::Exception &exc) {
                     //Handle your network errors.
                     std::cerr << "Network error: " << exc.displayText() << std::endl;
                     isOpen = false;
@@ -95,6 +107,8 @@ public:
                         std::string file;
                         std::cout << "Enter filename: "; std::cin >> file;
                         recieveFile(file);
+                    } else if (message == "Act") {
+                        std::clog << action() << std::endl << std::flush;
                     }
                 }
             }
