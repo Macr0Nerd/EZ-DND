@@ -10,9 +10,12 @@
 #include <array>
 #include <string>
 #include <stdexcept>
+#include <filesystem>
+#include <csignal>
 #include <Poco/StreamCopier.h>
 #include <Poco/FileStream.h>
 #include <Poco/Timespan.h>
+#include <Poco/Timestamp.h>
 #include <Poco/Thread.h>
 #include <Poco/Runnable.h>
 #include <Poco/BinaryWriter.h>
@@ -38,15 +41,39 @@
  * :)
  */
 
+bool dist = false;
+
+void sigHandleDistribute(int /*signal*/) {
+    std::cout << "Signal activated!" << std::endl << std::flush;
+    dist = true;
+}
+
 class server : public Poco::Net::TCPServerConnection {
 public:
     explicit server(const Poco::Net::StreamSocket& s) : TCPServerConnection(s) {}
 
-    void sendFile(const std::string& file) {
-        Poco::Net::SocketStream ostr(socket());
+    int sendFile(const std::string& file) {
+        std::string message;
+        unsigned char mess[5] = "File";
+        socket().sendBytes(mess, sizeof(mess));
 
-        Poco::FileInputStream istr(file, std::ios::binary);
-        Poco::StreamCopier::copyStream(istr, ostr);
+        unsigned char inBuff[5];
+        socket().receiveBytes(inBuff, sizeof(inBuff));
+
+        message = std::string(reinterpret_cast<char const*>(inBuff));
+        message.erase(remove_if(message.begin(), message.end(), [](char c){ return (isspace(c) || !isalpha(c)) && c != '!';} ), message.end());
+        message = message.substr(0, 4);
+
+        if(message == "Ack!") {
+            Poco::Net::SocketStream ostr(socket());
+
+            Poco::FileInputStream istr(file, std::ios::binary);
+            Poco::StreamCopier::copyStream(istr, ostr);
+
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     void recieveFile(const std::string& file) {
@@ -58,6 +85,28 @@ public:
         Poco::FileOutputStream ostr(file, std::ios::binary);
 
         Poco::StreamCopier::copyStream(istr, ostr);
+    }
+
+    int act(const std::string& action) {
+        unsigned char mess[4] = "Act"; std::string message;
+        socket().sendBytes(mess, sizeof(mess));
+
+        unsigned char inBuff[5];
+        socket().receiveBytes(inBuff, sizeof(inBuff));
+
+        message = reinterpret_cast<const char*>(inBuff);
+        message.erase(std::remove_if(message.begin(), message.end(), [](char c){ return !isspace(c) && !isalnum(c); }), message.end());
+        message = message.substr(0, 4);
+
+        if (message == "Ack!") {
+            unsigned char act[action.size() + 1];
+            std::copy(action.begin(), action.end(), act);
+
+            socket().sendBytes(act, sizeof(act));
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     std::string action() {
@@ -73,12 +122,35 @@ public:
         return action;
     }
 
+    int distribute(const std::string& dir) {
+        int ret = 1;
+
+        unsigned char dbeg[5] = "Dbeg";
+        socket().sendBytes(dbeg, sizeof(dbeg));
+
+        for(auto &i : std::filesystem::recursive_directory_iterator(dir)) {
+            ret = sendFile(dir + i.path().filename().string());
+
+            if(!ret) {
+                return 0;
+            }
+        }
+
+        unsigned char dfin[5] = "Dfin";
+        socket().sendBytes(dfin, sizeof(dfin));
+
+        dist = false;
+        return ret;
+    }
+
     void run() final {
         std::clog << "New connection from: " << socket().peerAddress().host().toString() << std::endl << std::flush;
         bool isOpen = true;
         Poco::Timespan timeOut(10, 0);
         unsigned char inBuff[1000];
         std::string message;
+
+        signal(SIGINT, sigHandleDistribute);
 
         while (isOpen) {
             if (!socket().poll(timeOut, Poco::Net::Socket::SELECT_READ)) {
@@ -87,10 +159,20 @@ public:
                 std::clog << "RX EVENT!!! ---> " << std::flush;
                 int nBytes = -1;
 
+                if (dist) {
+                    std::string dir;
+                    std::cout << "Enter the directory to send: ";
+                    std::cin >> dir;
+
+                    distribute(dir);
+                }
+
                 try {
                     nBytes = socket().receiveBytes(inBuff, sizeof(inBuff));
-                    message = std::string(reinterpret_cast<char const*>(inBuff));
-                    message.erase(remove_if(message.begin(), message.end(), [](char c){ return isspace(c) || !isalpha(c); } ), message.end());
+                    message = std::string(reinterpret_cast<char const *>(inBuff));
+                    message.erase(
+                            remove_if(message.begin(), message.end(), [](char c) { return isspace(c) || !isalpha(c); }),
+                            message.end());
                 } catch (Poco::Exception &exc) {
                     //Handle your network errors.
                     std::cerr << "Network error: " << exc.displayText() << std::endl;
@@ -103,12 +185,18 @@ public:
                 } else {
                     std::clog << "Receiving data: " << message << std::endl << std::flush;
 
-                    if(message == "File") {
+                    if (message == "File") {
                         std::string file;
-                        std::cout << "Enter filename: "; std::cin >> file;
+                        std::cout << "Enter filename: ";
+                        std::cin >> file;
                         recieveFile(file);
                     } else if (message == "Act") {
                         std::clog << action() << std::endl << std::flush;
+                    } else if (message == "Ping") {
+                        unsigned char mess[5] = "Pong";
+                        socket().sendBytes(mess, sizeof(mess));
+                    } else if (message == "Test") {
+                        sendFile("data/fred.ezdc");
                     }
                 }
             }
@@ -118,46 +206,142 @@ public:
     }
 };
 
-class client : public Poco::Net::SocketStream {
+class client {
 public:
-    client(Poco::Net::StreamSocket& ss) : SocketStream(ss){}
+    explicit client(const std::string& server) : ss(Poco::Net::SocketAddress(server, 42069)) {}
 
-    void recieveFile(const std::string& f) {
-        Poco::Net::SocketStream istr(socket());
-        Poco::FileOutputStream ostr(f, std::ios::binary);
+    int sendFile(const std::string& file) {
+        std::string message;
+        unsigned char mess[5] = "File";
+        ss.sendBytes(mess, sizeof(mess));
+
+        unsigned char inBuff[5];
+        ss.receiveBytes(inBuff, sizeof(inBuff));
+
+        message = std::string(reinterpret_cast<char const*>(inBuff));
+        message.erase(remove_if(message.begin(), message.end(), [](char c){ return isspace(c) || !isalpha(c); } ), message.end());
+        message = message.substr(0, 4);
+
+        if(message == "Ack!") {
+            Poco::Net::SocketStream ostr(ss);
+
+            Poco::FileInputStream istr(file, std::ios::binary);
+            Poco::StreamCopier::copyStream(istr, ostr);
+
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    void recieveFile(const std::string& file) {
+        unsigned char mess[5] = "Ack!";
+        ss.sendBytes(mess, sizeof(mess));
+
+        Poco::Net::SocketStream istr(ss);
+
+        Poco::FileOutputStream ostr(file, std::ios::binary);
+
         Poco::StreamCopier::copyStream(istr, ostr);
     }
 
-    void sendFile(const std::string& f) {
-        unsigned char inBuff[1000];
-        unsigned char mess[5] = "File";
-        std::string message;
-        socket().sendBytes(mess, sizeof(mess));
+    int act(const std::string& action) {
+        unsigned char mess[4] = "Act"; std::string message;
+        ss.sendBytes(mess, sizeof(mess));
 
-        int x = 0;
-        while(true) {
-            try {
-                socket().receiveBytes(inBuff, sizeof(inBuff));
-                message = std::string(reinterpret_cast<char const*>(inBuff));
-                message.erase(message.length()-1);
-                if (message == "Ack!") {
-                    break;
-                } else {
-                    continue;
+        unsigned char inBuff[5];
+        ss.receiveBytes(inBuff, sizeof(inBuff));
+
+        message = reinterpret_cast<const char*>(inBuff);
+        message.erase(std::remove_if(message.begin(), message.end(), [](char c){ return !isspace(c) && !isalnum(c); }), message.end());
+        message.substr(0, 4);
+
+        if (message == "Ack!") {
+            unsigned char act[action.size() + 1];
+            std::copy(action.begin(), action.end(), act);
+
+            ss.sendBytes(act, sizeof(act));
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    std::string action() {
+        unsigned char mess[5] = "Ack!"; std::string action;
+        ss.sendBytes(mess, sizeof(mess));
+
+        unsigned char inBuff[1000];
+        ss.receiveBytes(inBuff, sizeof(inBuff));
+
+        action = std::string(reinterpret_cast<char const*>(inBuff));
+        action.erase(remove_if(action.begin(), action.end(), [](char c){ return c != ' ' && !isalnum(c) && c != ','; } ), action.end());
+
+        return action;
+    }
+
+    void run() {
+        std::clog << "Connecting to " << ss.peerAddress().host().toString() << "" << std::endl << std::flush;
+        bool isOpen = true;
+        Poco::Timespan timeOut(10, 0);
+        unsigned char inBuff[1000];
+        std::string message, dir;
+        Poco::Timestamp time;
+
+        while (isOpen) {
+            if (!ss.poll(timeOut, Poco::Net::Socket::SELECT_READ)) {
+                std::cerr << "TIMEOUT!" << std::endl << std::flush;
+            } else {
+                if (time.elapsed() == 10000000) {
+                    unsigned char ping[5] = "Ping";
+                    ss.sendBytes(ping, sizeof(ping));
+
+                    unsigned char pong[5];
+                    ss.receiveBytes(pong, sizeof(pong));
+                    std::string p = std::string(reinterpret_cast<char const*>(pong));
+                    p.erase(remove_if(p.begin(), p.end(), [](char c){ return !isalnum(c); } ), p.end());
                 }
-            } catch (Poco::Exception& /*e*/){
-                ++x;
-                if(x > 5) {
-                    throw std::out_of_range("No ack received");
+
+                std::clog << "RX EVENT!!! ---> " << std::flush;
+                int nBytes = -1;
+
+                try {
+                    nBytes = ss.receiveBytes(inBuff, sizeof(inBuff));
+                    message = std::string(reinterpret_cast<char const*>(inBuff));
+                    message.erase(remove_if(message.begin(), message.end(), [](char c){ return isspace(c) || !isalpha(c); } ), message.end());
+                } catch (Poco::Exception &exc) {
+                    //Handle your network errors.
+                    std::cerr << "Network error: " << exc.displayText() << std::endl;
+                    isOpen = false;
+                }
+
+                if (nBytes == 0) {
+                    std::clog << "Server closed connection!" << std::endl << std::flush;
+                    isOpen = false;
+                } else {
+                    std::clog << "Receiving data: " << message << std::endl << std::flush;
+
+                    if(message == "File") {
+                        std::string file;
+                        std::cout << "Enter filename: "; std::cin >> file;
+
+                        recieveFile(dir + file);
+                    } else if (message == "Act") {
+                        std::clog << action() << std::endl << std::flush;
+                    } else if (message == "Dbeg") {
+                        dir = "dat/";
+                    } else if (message == "Dfin") {
+                        dir.clear();
+                    }
                 }
             }
         }
 
-        Poco::Net::SocketStream ostr(socket());
-
-        Poco::FileInputStream istr(f, std::ios::binary);
-        Poco::StreamCopier::copyStream(istr, ostr);
+        std::cout << "Connection closed" << std::endl << std::flush;
     }
+
+private:
+    Poco::Net::StreamSocket ss;
 };
 
 #endif /* EZDND_NETWORK_HPP */

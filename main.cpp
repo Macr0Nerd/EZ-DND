@@ -13,7 +13,7 @@ int main(){
     auto* pParams = new Poco::Net::TCPServerParams();
     pParams->setMaxThreads(7);
     pParams->setMaxQueued(1);
-    pParams->setThreadIdleTime(250000);
+    pParams->setThreadIdleTime(250000000);
 
     //Create your server
     Poco::Net::TCPServer myServer(new Poco::Net::TCPServerConnectionFactoryImpl<server>(), svs, pParams);

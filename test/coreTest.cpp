@@ -330,7 +330,7 @@ TEST_CASE("The board's functions work", "[board]") {
         INFO("Starting adjacent test");
         std::cout << "Starting board/adjacent tests..." << std::endl;
         
-        CHECK(board.getAdjacent(fred)[0].getName() == "Bob");
+        CHECK(board.getAdjacent(1001)[0].getName() == "Bob");
         
         std::cout << "Passed board/adjacent test" << std::endl;
     }
@@ -341,7 +341,7 @@ TEST_CASE("The board's functions work", "[board]") {
         
         CHECK(board.getPos(bob.uid).first == 7);
         
-        board.move(bob, 5, 6);
+        board.move(1002, 5, 6);
         
         CHECK(board.getPos(bob.uid).first == 5);
         
