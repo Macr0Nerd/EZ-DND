@@ -206,6 +206,7 @@ public:
     }
 };
 
+///TODO: Actually test the client rather than assume it works
 class client {
 public:
     explicit client(const std::string& server) : ss(Poco::Net::SocketAddress(server, 42069)) {}
@@ -285,8 +286,13 @@ public:
         bool isOpen = true;
         Poco::Timespan timeOut(10, 0);
         unsigned char inBuff[1000];
-        std::string message, dir;
+        std::string message, dir, charFile;
         Poco::Timestamp time;
+
+        std::cout << "Enter the character to send: " << std::endl << std::flush;
+        std::cin >> charFile;
+
+        sendFile(charFile);
 
         while (isOpen) {
             if (!ss.poll(timeOut, Poco::Net::Socket::SELECT_READ)) {
