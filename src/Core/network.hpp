@@ -298,7 +298,7 @@ public:
             if (!ss.poll(timeOut, Poco::Net::Socket::SELECT_READ)) {
                 std::cerr << "TIMEOUT!" << std::endl << std::flush;
             } else {
-                if (time.elapsed() == 10000000) {
+                if (time.elapsed() == 20000000) {
                     unsigned char ping[5] = "Ping";
                     ss.sendBytes(ping, sizeof(ping));
 
@@ -306,6 +306,12 @@ public:
                     ss.receiveBytes(pong, sizeof(pong));
                     std::string p = std::string(reinterpret_cast<char const*>(pong));
                     p.erase(remove_if(p.begin(), p.end(), [](char c){ return !isalnum(c); } ), p.end());
+
+                    if(p != "Pong") {
+                        throw Poco::Net::HostNotFoundException("The host did not respond to the ping");
+                    }
+
+                    time.update();
                 }
 
                 std::clog << "RX EVENT!!! ---> " << std::flush;
