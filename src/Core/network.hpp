@@ -298,7 +298,7 @@ public:
             if (!ss.poll(timeOut, Poco::Net::Socket::SELECT_READ)) {
                 std::cerr << "TIMEOUT!" << std::endl << std::flush;
             } else {
-                if (time.elapsed() == 20000000) {
+                if (time.elapsed() >= 20000000) {
                     unsigned char ping[5] = "Ping";
                     ss.sendBytes(ping, sizeof(ping));
 
