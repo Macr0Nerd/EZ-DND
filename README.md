@@ -17,7 +17,7 @@ Firstly, you need to setup C++.
 * Download and setup [CMake for VS Code](https://marketplace.visualstudio.com/items?itemName=vector-of-bool.cmake-tools)
 * Download and setup [POCO for Windows](https://pocoproject.org/index.html)
 (only necessary if you plan on using prebuilt networking class)
-* Download the distributable from the Github package manager
+* Download the distributable from the Github release manager
 * Use the libraries to your heart's content!
 
 Sorry if this explanation is bad; I'm a Linux superuser
@@ -26,7 +26,7 @@ Sorry if this explanation is bad; I'm a Linux superuser
 * Download g++ from your package manager
 * Download cmake from your package manager
 * Download POCO from your package manager
-* Download the distributable from the Github package manager
+* Download the distributable from the Github release manager
 * Use the libraries to your heart's content!
 
 It looks bad but is actually real easy on Linux.
