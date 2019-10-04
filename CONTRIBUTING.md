@@ -1,0 +1,2 @@
+# Contributing
+See readme
