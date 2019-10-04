@@ -3,27 +3,61 @@
 # EZ D&D
 Hi! 
 This project was written and made by Gabe Ron.
-I really haven't done much with it.
-Right now I have a few basic features developed.
-If you wanna use what I've developed more power to you.
-Just know that this is GNU GPL v3, not MIT!
-So yeah.
-That's all I guess.
+I have so far built the base libraries.
+I'm going to be working on the CLI and GUI, and refactoring a lot of code.
+Please stay posted for actual updates past just libraries.
+Feel free to add features or contribute.
 
 ## How to build
-* Setup C++ on Windows with VSCode.
-* Setup C++ on *Nix by installing g++.
+So there are a few steps that need to be taken to use and develop for the libraries.
+Firstly, you need to setup C++.
 
-Now clone the code into wherever you want and build based off CMake.
-I dunno what else to say. 
-I've been trying to document my code but we'll see where that goes.
-So yeah.
-Have fun.
+#### Windows
+* Download and setup [C++ for VS Code](https://code.visualstudio.com/docs/languages/cpp)
+* Download and setup [CMake for VS Code](https://marketplace.visualstudio.com/items?itemName=vector-of-bool.cmake-tools)
+* Download and setup [POCO for Windows](https://pocoproject.org/index.html)
+(only necessary if you plan on using prebuilt networking class)
+* Download the distributable from the Github package manager
+* Use the libraries to your heart's content!
+
+Sorry if this explanation is bad; I'm a Linux superuser
+
+#### Linux
+* Download g++ from your package manager
+* Download cmake from your package manager
+* Download POCO from your package manager
+* Download the distributable from the Github package manager
+* Use the libraries to your heart's content!
+
+It looks bad but is actually real easy on Linux.
 
 ## How to use
-I haven't even figured that out so, have fun!
+So the base libraries have been built, and its almost ready to use.
+I need to clean some stuff up but a CLI or GUI is coming soon.
+I pormise (that was intentional).
 
 ## Contributing
-This is far from ready for everyone so for now, if you *really* feel like you need to help, email me at macrocode@yahoo.com.
-Otherwise, just wait until Alpha comes out.
-In the meantime, you can learn how to use Catch2!
+Basically just follow general OSS contribution rules.
+Please stick to the code formats I've set(?) with my code.
+This includes but is not limited to:
+* camelCase
+* UPPERCASE CONSTANTS
+* Descriptive naming
+* Undescriptive naming
+* Documentation
+* Praising lord G̷̳̼͍̗̪̬̩̲͛͌̽͆̑ ̴̛̖̈́͜͝Ȁ̶̠͉̙͎̤̋̓̍̾͗͝ ̴̡̠̯̺̰͐̊Ṙ̶͓̙͈͉͚̉͂̎ ̵̢͓̫̩̹̦͔̭̽́̃͊́F̶̬͖̙͉̑̔̊̎͋̓͛͘ ̴̧̮̙̙̟͕͌̉̉I̶̜̦͗̽̕ ̸̪̼̋̿̂͑͐͝E̵̢͍̋̑͆̂̎͐̍͝ ̶͉͇̬͙̮͗͌͊̔̈̚L̸̢̤̳͚̠͓̓̿̅̽̅́ͅ ̴̪̼͓́̾̔̇̆̀̆̎Ď̸̙̳͈͕̪̗̿
+
+Overall, just try to find an issue or featurerequest **with triage approved**.
+Or you can propose one and see if it gets approved. 
+Just work on it and follow the guidelines and we good.
+
+And please use a separate branch.
+
+## License
+This is licensed under GNU GPLv3.
+Please familiarize yourself with this before you use this code.
+
+## Thanks and Contributions
+This project would not be possible without tools such as
+* [Catch2](https://github.com/catchorg/Catch2) for testing
+* [POCO](https://pocoproject.org/) for a variety of tools
