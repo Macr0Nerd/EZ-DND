@@ -6,6 +6,10 @@ using std::cout;
 using std::cin;
 using std::endl;
 
+constexpr unsigned int version_major = 0U;
+constexpr unsigned int version_minor = 0U;
+constexpr unsigned int version_release = 0U;
+
 int main(){
     Poco::Net::ServerSocket svs(42069);
 
