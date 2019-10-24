@@ -41,6 +41,15 @@
  * :)
  */
 
+/*
+ * WARNING
+ *
+ * DEPRECATED:
+ * THIS WAS A MISTAKE
+ * NETWORKING SHOULD BE HANDLED BY THE UI
+ * ONCE I BUILD A GUI THIS ALL GOES AWAY
+ */
+
 bool dist = false;
 
 void sigHandleDistribute(int /*signal*/) {

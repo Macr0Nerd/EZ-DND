@@ -29,7 +29,25 @@ Sorry if this explanation is bad; I'm a Linux superuser
 * Download the distributable from the Github release manager
 * Use the libraries to your heart's content!
 
-It looks bad but is actually real easy on Linux.
+For instance, as I use Fedora, the process for me goes:
+
+    sudo dnf install cmake
+    sudo dnf install poco-devel
+    sudo dnf upgrade
+    mkdir EZ-DND/build
+    cd EZ-DND/build
+    cmake ..
+    make
+
+It looks bad but finding the actual package names is the worst part.
+
+#### Notes
+* For both Windows and Linux, C++17 is **required**.
+The CMake build will crash without it.
+Apparently GCC on Ubuntu doesn't have it fully implemented correctly but still reports the CMAKE_CXX_STANDARD flag as 17,
+so just to be redundant I have also linked stdc++fs, which is the filesystem library.
+This is currently used in the networking classes.
+* WARNING: The networking class will soon be deprecated.
 
 ## How to use
 So the base libraries have been built, and its almost ready to use.
