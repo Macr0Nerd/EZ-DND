@@ -11,12 +11,10 @@ include_directories(${LIB_DIR}/Catch)
 set(SRC_DIR src)
 include_directories(${SRC_DIR})
 
-find_package(Poco 1.8.0 REQUIRED COMPONENTS Foundation Net)
-
-set(SRC_FILES main.cpp ${SRC_DIR}/Character/character.hpp ${SRC_DIR}/Character/weapons.hpp ${SRC_DIR}/Core/dice.hpp ${SRC_DIR}/Character/armor.hpp ${SRC_DIR}/Core/board.hpp ${SRC_DIR}/Core/network.hpp)
-add_executable(ezdnd ${SRC_FILES})
-target_link_libraries(ezdnd PUBLIC Poco::Foundation Poco::Net stdc++fs)
+set(SRC_FILES main.cpp ${SRC_DIR}/Character/character.hpp ${SRC_DIR}/Character/weapons.hpp ${SRC_DIR}/Core/dice.hpp ${SRC_DIR}/Character/armor.hpp ${SRC_DIR}/Core/board.hpp)
+add_executable(${PROJECT_NAME} ${SRC_FILES})
+target_link_libraries(${PROJECT_NAME} stdc++fs)
 
 set(TST_DIR test)
 set(TST_FILES ${TST_DIR}/coreTest.cpp)
-add_executable(ezdnd_test ${TST_FILES})
+add_executable(${PROJECT_NAME}_test ${TST_FILES})

@@ -3,9 +3,7 @@
 # EZ D&D
 Hi! 
 This project was written and made by Gabe Ron.
-I have so far built the base libraries.
-I'm going to be working on the CLI and GUI, and refactoring a lot of code.
-Please stay posted for actual updates past just libraries.
+I has been rebranded as a D&D framework as I hate frontend.
 Feel free to add features or contribute.
 
 ## How to build
@@ -50,9 +48,7 @@ This is currently used in the networking classes.
 * WARNING: The networking class will soon be deprecated.
 
 ## How to use
-So the base libraries have been built, and its almost ready to use.
-I need to clean some stuff up but a CLI or GUI is coming soon.
-I pormise (that was intentional).
+This is a D&D framework so build your own frontend.
 
 ## Contributing
 Basically just follow general OSS contribution rules.
