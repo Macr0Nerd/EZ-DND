@@ -1,5 +1,11 @@
 ![](ezdndlogo.png)
 
+# IMPORTANT
+THIS REPO IS ARCHIVED!
+AN ACTUAL GOOD LIBRARY IS OVER AT [Macr0Nerd/EZTPLIB](https://githib.com/Macr0Nerd/eztplib)!
+PLEASE USE THAT!
+
+
 # EZ D&D
 Hi! 
 This project was written and made by Gabe Ron.
