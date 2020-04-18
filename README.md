@@ -2,7 +2,7 @@
 
 # IMPORTANT
 THIS REPO IS ARCHIVED!
-AN ACTUAL GOOD LIBRARY IS OVER AT [Macr0Nerd/EZTPLIB](https://githib.com/Macr0Nerd/eztplib)!
+AN ACTUAL GOOD LIBRARY IS OVER AT [Macr0Nerd/EZTPLIB](https://github.com/Macr0Nerd/eztplib)!
 PLEASE USE THAT!
 
 
